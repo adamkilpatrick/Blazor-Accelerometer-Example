@@ -1,0 +1,36 @@
+﻿@page "/"
+@inject IJSRuntime JSruntime
+
+<h1>ACCEL READING:</h1>
+<h3>
+    <span>X: @X </span>
+    <br/>
+    <span>Y: @Y </span>
+    <br/>
+    <span>Z: @Z </span>
+</h3>
+
+
+@code
+{ 
+    public double X { get; set; }
+    public double Y { get; set; }
+    public double Z { get; set; }
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        if(firstRender)
+        {
+            await JSruntime.InvokeVoidAsync("InitAccelerometer", DotNetObjectReference.Create(this));
+        }
+    }
+
+    [JSInvokable]
+    public Task HandleAccelerometerEvent(double x, double y, double z)
+    {
+        this.X = x;
+        this.Y = y;
+        this.Z = z;
+        StateHasChanged();
+        return Task.CompletedTask;
+    }
+}

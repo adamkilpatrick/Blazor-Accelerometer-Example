@@ -1,0 +1,37 @@
+﻿@page "/snakeRotate"
+@inject IJSRuntime JSruntime
+
+<h1>Rotate the snake by tilting left/right</h1>
+
+<p style="font-size:80px; transform:@RotateStyle(); width:fit-content">
+    🐍
+</p>
+
+
+@code {
+    private int currentRotation = 0;
+
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        if(firstRender)
+        {
+            await JSruntime.InvokeVoidAsync("InitAccelerometer", DotNetObjectReference.Create(this));
+        }
+    }
+
+    public string RotateStyle()
+    {
+        return $"rotate({this.currentRotation}deg)";
+    }
+
+    [JSInvokable]
+    public Task HandleAccelerometerEvent(double x, double y, double z)
+    {
+        if(Math.Abs(x) > 1.0)
+        {
+            this.currentRotation += (int)((-1 * x) / 2);
+        }
+        StateHasChanged();
+        return Task.CompletedTask;
+    }
+}
